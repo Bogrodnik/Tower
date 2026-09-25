@@ -1,0 +1,209 @@
+.monster-detail-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+.monster-back-link {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-bottom: 28px;
+}
+
+.monster-back-link:hover {
+  color: var(--accent-blue-light);
+}
+
+.monster-external-link {
+  display: inline-block;
+  margin-top: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.monster-external-link:hover {
+  color: var(--accent-blue-light);
+}
+
+.monster-inspect {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.monster-detail-page .panel {
+  padding: 24px 28px;
+}
+
+.monster-header {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  box-shadow: 0 0 40px rgba(46, 201, 192, 0.08);
+}
+
+.monster-portrait {
+  flex: 0 0 auto;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 25%, rgba(46, 201, 192, 0.22), transparent 70%),
+    rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-color-strong);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.monster-portrait img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.monster-portrait-placeholder {
+  color: var(--text-muted);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+.monster-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.monster-name {
+  margin: 6px 0 12px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-primary);
+}
+
+.monster-flavor-text {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  max-width: 620px;
+}
+
+.monster-section-name {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--text-primary);
+}
+
+.monster-section-description {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.monster-attacks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.monster-attack-card {
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.monster-attack-art {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, rgba(46, 201, 192, 0.12), transparent 70%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.monster-attack-art img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.monster-attack-name {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.monster-attack-description {
+  margin: 0 0 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.monster-attack-stats {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.monster-attack-stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+.monster-strategy-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 700px) {
+  .monster-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .monster-flavor-text {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .monster-detail-page {
+    padding: 32px 16px 64px;
+  }
+
+  .monster-detail-page .panel {
+    padding: 18px 18px;
+  }
+}

@@ -58,23 +58,47 @@ function rankAndLimit(scored) {
 }
 
 function searchEternals(eternals, query) {
-  const scored = eternals.map((eternal) => ({
-    score: bestFieldScore(
+  const scored = eternals.map((eternal) => {
+    const ability = eternal.eternalAbility
+    // An Eternal Ability match (e.g. searching its name) is still surfaced
+    // as an Eternal result, since the ability isn't a separate database
+    // record — but its name is shown as the subtitle so it's clear why the
+    // Eternal matched.
+    const abilityScore = ability
+      ? bestFieldScore(
+          [
+            { value: ability.name, weight: 0.9 },
+            { value: ability.description, weight: 0.3 },
+          ],
+          query,
+        )
+      : null
+    const nameScore = bestFieldScore(
       [
         { value: eternal.name, weight: 1 },
         { value: eternal.description, weight: 0.3 },
       ],
       query,
-    ),
-    result: {
-      type: 'eternal',
-      id: eternal.id,
-      title: eternal.name,
-      subtitle: 'Eternal',
-      image: eternal.image,
-      href: `/eternals/${encodeURIComponent(eternal.id)}`,
-    },
-  }))
+    )
+    const score =
+      nameScore == null && abilityScore == null
+        ? null
+        : Math.max(nameScore ?? -Infinity, abilityScore ?? -Infinity)
+    return {
+      score,
+      result: {
+        type: 'eternal',
+        id: eternal.id,
+        title: eternal.name,
+        subtitle:
+          ability && (abilityScore ?? -Infinity) > (nameScore ?? -Infinity)
+            ? `Eternal · ${ability.name}`
+            : 'Eternal',
+        image: eternal.image,
+        href: `/eternals/${encodeURIComponent(eternal.id)}`,
+      },
+    }
+  })
   return rankAndLimit(scored)
 }
 
@@ -147,19 +171,65 @@ function searchNews(articles, query) {
   return rankAndLimit(scored)
 }
 
+function searchMonsters(monsters, query) {
+  const scored = monsters.map((monster) => ({
+    score: bestFieldScore(
+      [
+        { value: monster.name, weight: 1 },
+        { value: monster.summary, weight: 0.4 },
+        { value: monster.description, weight: 0.25 },
+      ],
+      query,
+    ),
+    result: {
+      type: 'monster',
+      id: monster.id,
+      title: monster.name,
+      subtitle: 'Monster',
+      image: monster.icon || monster.image,
+      href: `/monsters/${encodeURIComponent(monster.id)}`,
+    },
+  }))
+  return rankAndLimit(scored)
+}
+
+function searchMaps(maps, query) {
+  const scored = maps.map((map) => ({
+    score: bestFieldScore(
+      [
+        { value: map.name, weight: 1 },
+        { value: map.category, weight: 0.5 },
+        { value: map.description, weight: 0.3 },
+      ],
+      query,
+    ),
+    result: {
+      type: 'map',
+      id: map.id,
+      title: map.name,
+      subtitle: map.entityType === 'floor' ? 'Map · Floor' : `Map · ${map.category}`,
+      image: map.image,
+      href: `/maps/${encodeURIComponent(map.id)}`,
+    },
+  }))
+  return rankAndLimit(scored)
+}
+
 /**
  * Search Tower's already-loaded data for `query`.
  * @param {string} query
  * @returns {Promise<{ eternals: object[], items: object[], builds: object[], news: object[], guides: object[] }>}
  */
 export async function search(query) {
-  const empty = { eternals: [], items: [], builds: [], news: [], guides: [] }
+  const empty = { eternals: [], items: [], monsters: [], maps: [], builds: [], news: [], guides: [] }
   const normalizedQuery = normalize(query)
   if (!normalizedQuery) return empty
 
-  const [eternals, items, articles] = await Promise.all([
+  const [eternals, items, monsters, maps, articles] = await Promise.all([
     ArkheronDataService.getEternals().catch(() => []),
     ArkheronDataService.getItems().catch(() => []),
+    ArkheronDataService.getMonsters().catch(() => []),
+    ArkheronDataService.getMaps().catch(() => []),
     NewsService.getArticles().catch(() => []),
   ])
   const builds = BuildService.getBuilds()
@@ -167,6 +237,8 @@ export async function search(query) {
   return {
     eternals: searchEternals(eternals, normalizedQuery),
     items: searchItems(items, normalizedQuery),
+    monsters: searchMonsters(monsters, normalizedQuery),
+    maps: searchMaps(maps, normalizedQuery),
     builds: searchBuilds(builds, normalizedQuery),
     news: searchNews(articles, normalizedQuery),
     // No real Guide dataset exists yet — always empty until one does.

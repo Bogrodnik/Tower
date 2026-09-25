@@ -7,6 +7,8 @@ const TABS = [
   { key: 'all', label: 'All' },
   { key: 'items', label: 'Items' },
   { key: 'eternals', label: 'Eternals' },
+  { key: 'monsters', label: 'Monsters' },
+  { key: 'maps', label: 'Maps' },
   { key: 'builds', label: 'Builds' },
   { key: 'guides', label: 'Guides' },
   { key: 'news', label: 'News' },
@@ -15,6 +17,8 @@ const TABS = [
 const GROUP_LABELS = {
   eternals: 'Eternals',
   items: 'Items',
+  monsters: 'Monsters',
+  maps: 'Maps',
   builds: 'Builds',
   guides: 'Guides',
   news: 'News',

@@ -195,7 +195,17 @@ function Eternals() {
     const query = search.trim().toLowerCase()
     if (!query) return eternals
     return eternals.filter((eternal) => {
-      const haystack = `${eternal.name} ${eternal.description || ''}`.toLowerCase()
+      const ability = eternal.eternalAbility
+      const haystack = [
+        eternal.name,
+        eternal.description,
+        ability?.name,
+        ability?.description,
+        ...(ability?.tags || []),
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
       return haystack.includes(query)
     })
   }, [eternals, search])

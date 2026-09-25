@@ -7,6 +7,8 @@ const NAV_GROUPS = [
     links: [
       { to: '/eternals', label: 'Eternals' },
       { to: '/items', label: 'Items' },
+      { to: '/monsters', label: 'Monsters' },
+      { to: '/maps', label: 'Maps' },
     ],
   },
   {

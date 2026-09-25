@@ -5,6 +5,10 @@ import Eternals from './pages/Eternals/Eternals.jsx'
 import EternalDetail from './pages/EternalDetail/EternalDetail.jsx'
 import Items from './pages/Items/Items.jsx'
 import ItemDetail from './pages/ItemDetail/ItemDetail.jsx'
+import Monsters from './pages/Monsters/Monsters.jsx'
+import MonsterDetail from './pages/MonsterDetail/MonsterDetail.jsx'
+import Maps from './pages/Maps/Maps.jsx'
+import MapDetail from './pages/MapDetail/MapDetail.jsx'
 import Builds from './pages/Builds/Builds.jsx'
 import BuildDetail from './pages/BuildDetail/BuildDetail.jsx'
 import BuildCreate from './pages/BuildCreate/BuildCreate.jsx'
@@ -27,6 +31,10 @@ function App() {
         <Route path="/eternals/:id" element={<EternalDetail />} />
         <Route path="/items" element={<Items />} />
         <Route path="/items/:id" element={<ItemDetail />} />
+        <Route path="/monsters" element={<Monsters />} />
+        <Route path="/monsters/:id" element={<MonsterDetail />} />
+        <Route path="/maps" element={<Maps />} />
+        <Route path="/maps/:id" element={<MapDetail />} />
         <Route path="/builds" element={<Builds />} />
         <Route path="/builds/create" element={<BuildCreate />} />
         <Route path="/builds/:id/edit" element={<BuildCreate />} />

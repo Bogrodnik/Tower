@@ -150,6 +150,21 @@ export async function getImageUrls(fileNames) {
       if (url) {
         const fileName = page.title.replace(/^File:/, '')
         result[fileName] = url
+        // MediaWiki normalizes underscores to spaces in the response title,
+        // but wikitext [[File:...]] links (and our regex-parsed file names)
+        // sometimes keep underscores — alias both forms so lookups by
+        // either spelling resolve to the same URL.
+        result[fileName.replace(/ /g, '_')] = url
+      }
+    }
+
+    // Also alias directly off the API's own normalization map, covering any
+    // other punctuation differences beyond underscores/spaces.
+    const normalized = data?.query?.normalized || []
+    for (const { from, to } of normalized) {
+      const toFileName = to.replace(/^File:/, '')
+      if (result[toFileName]) {
+        result[from.replace(/^File:/, '')] = result[toFileName]
       }
     }
   }

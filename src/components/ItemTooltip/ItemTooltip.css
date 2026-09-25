@@ -3,8 +3,12 @@
 }
 
 .item-tooltip {
+  /* Rendered via a portal directly under <body> (see ItemTooltip.jsx), so
+     this only ever has to out-rank other fixed/absolute UI in that same
+     top-level stacking context — max it out so no current or future
+     overlay (modals, headers, dropdowns, etc.) can ever cover it. */
   position: fixed;
-  z-index: 500;
+  z-index: 2147483647;
   width: 260px;
   max-width: calc(100vw - 24px);
   pointer-events: auto;

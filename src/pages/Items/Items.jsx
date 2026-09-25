@@ -19,6 +19,34 @@ function slugifySource(source) {
   return source.trim().toLowerCase().replace(/\s+/g, '-')
 }
 
+const SORT_COLUMNS = [
+  { key: 'name', label: 'Name' },
+  { key: 'category', label: 'Category' },
+  { key: 'source', label: 'Source' },
+  { key: 'effects', label: 'Effects' },
+  { key: 'id', label: 'ID' },
+]
+
+// One comparable value per sortable column, derived straight from the
+// canonical item record — nothing invented. Effects sort by their combined,
+// alphabetized label list so items sharing the same effects group together,
+// then by name as a tiebreaker.
+function getSortValue(item, key) {
+  switch (key) {
+    case 'category':
+      return (item.category || '').toLowerCase()
+    case 'source':
+      return (item.source || '').toLowerCase()
+    case 'effects':
+      return item.effects.map((e) => e.label).sort((a, b) => a.localeCompare(b)).join(', ').toLowerCase()
+    case 'id':
+      return item.pageId ?? -Infinity
+    case 'name':
+    default:
+      return item.name.toLowerCase()
+  }
+}
+
 function Items() {
   const [items, setItems] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -28,6 +56,17 @@ function Items() {
   const [sourceFilter, setSourceFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [effectFilter, setEffectFilter] = useState('all')
+  const [sortKey, setSortKey] = useState('name')
+  const [sortDir, setSortDir] = useState('asc')
+
+  const handleSort = (key) => {
+    if (key === sortKey) {
+      setSortDir((dir) => (dir === 'asc' ? 'desc' : 'asc'))
+    } else {
+      setSortKey(key)
+      setSortDir('asc')
+    }
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -81,7 +120,7 @@ function Items() {
     if (!items) return []
     const query = search.trim().toLowerCase()
 
-    return items.filter((item) => {
+    const filtered = items.filter((item) => {
       if (query) {
         const haystack = `${item.name} ${item.pageId ?? ''}`.toLowerCase()
         if (!haystack.includes(query)) return false
@@ -91,7 +130,16 @@ function Items() {
       if (effectFilter !== 'all' && !item.effects.some((effect) => effect.label === effectFilter)) return false
       return true
     })
-  }, [items, search, sourceFilter, categoryFilter, effectFilter])
+
+    const dir = sortDir === 'asc' ? 1 : -1
+    return [...filtered].sort((a, b) => {
+      const av = getSortValue(a, sortKey)
+      const bv = getSortValue(b, sortKey)
+      if (av < bv) return -1 * dir
+      if (av > bv) return 1 * dir
+      return a.name.localeCompare(b.name) * dir
+    })
+  }, [items, search, sourceFilter, categoryFilter, effectFilter, sortKey, sortDir])
 
   return (
     <div className="items-page">
@@ -159,11 +207,20 @@ function Items() {
               <thead>
                 <tr>
                   <th className="items-col-art"></th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Source</th>
-                  <th>Effects</th>
-                  <th className="items-col-id">ID</th>
+                  {SORT_COLUMNS.map((col) => (
+                    <th
+                      key={col.key}
+                      className={col.key === 'id' ? 'items-col-id items-col-sortable' : 'items-col-sortable'}
+                      aria-sort={sortKey === col.key ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+                    >
+                      <button type="button" className="items-sort-btn" onClick={() => handleSort(col.key)}>
+                        {col.label}
+                        <span className={`items-sort-arrow${sortKey === col.key ? ' active' : ''}`}>
+                          {sortKey === col.key && sortDir === 'desc' ? '▾' : '▴'}
+                        </span>
+                      </button>
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>

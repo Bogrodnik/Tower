@@ -23,6 +23,12 @@ let itemsPromise = null // in-flight request, to avoid duplicate concurrent fetc
 let glossaryCache = null // { data: Record<string,string>, fetchedAt: number }
 let glossaryPromise = null // in-flight request, to avoid duplicate concurrent fetches
 
+let monstersCache = null // { data: Monster[], fetchedAt: number }
+let monstersPromise = null // in-flight request, to avoid duplicate concurrent fetches
+
+let mapsCache = null // { data: MapEntity[], fetchedAt: number }
+let mapsPromise = null // in-flight request, to avoid duplicate concurrent fetches
+
 // ---------------------------------------------------------------------------
 // Wikitext parsing helpers
 // ---------------------------------------------------------------------------
@@ -247,6 +253,58 @@ function parseGlossary(wikitext) {
 // compare equal on both ends.
 function slugify(title) {
   return title
+}
+
+/**
+ * Extract a "== Heading ==" section's body from wikitext, up to (but not
+ * including) the next top-level heading. Used by both Monster and Map
+ * pages, which share this basic MediaWiki section structure.
+ */
+function extractWikiSection(wikitext, heading) {
+  const re = new RegExp(`==\\s*${heading}\\s*==\\n([\\s\\S]*?)(?=\\n==[^=]|$)`, 'i')
+  const match = wikitext.match(re)
+  return match ? match[1].trim() : undefined
+}
+
+/**
+ * Parse a "* bullet\n* bullet" wikitext list into a plain string array.
+ */
+function parseBulletList(sectionText) {
+  if (!sectionText) return []
+  return sectionText
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith('*'))
+    .map((line) => stripWikiMarkup(line.replace(/^\*+\s*/, '')))
+    .filter(Boolean)
+}
+
+/**
+ * Parse the Wiki's `<div class="ak-card">...</div>` grid layout (used on
+ * the Destroyer page's "Attacks" section) into plain objects. Each card has
+ * an image, a title, a description, and an optional stat line.
+ */
+function parseAkCards(sectionText) {
+  const chunks = sectionText.split('<div class="ak-card">').slice(1)
+  return chunks
+    .map((chunk) => {
+      const image = (chunk.match(/ak-media">\[\[File:([^|\]]+)/) || [])[1]
+      const name = (chunk.match(/ak-card__title">([^<]+)</) || [])[1]
+      const descRaw = (chunk.match(/ak-card__meta__desc">([^<]+)</) || [])[1]
+      const statsRaw = (chunk.match(/ak-card__meta__stats">([^<]+)</) || [])[1]
+      if (!name) return null
+      return {
+        name: name.trim(),
+        image: image ? image.trim() : undefined,
+        description: descRaw ? stripWikiMarkup(descRaw) : undefined,
+        stats: statsRaw ? parseStats(statsRaw.replace(/<br\s*\/?>/gi, ';')) : [],
+      }
+    })
+    .filter(Boolean)
+}
+
+function toTitleCase(str) {
+  return str.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
 // ---------------------------------------------------------------------------
@@ -653,6 +711,345 @@ export async function getEternal(id) {
 }
 
 // ---------------------------------------------------------------------------
+// Monster model assembly
+//
+// The Wiki has no "Monsters" Category or Cargo table — the "Monsters" page
+// itself is the source of truth, and it only names three monster
+// categories (Remnants, Tormentors, Destroyers), each linking to its own
+// page. Of those three links, only "Destroyer" currently resolves to a real
+// Wiki page; "Remnant" and "Tormentor" are still redlinks (confirmed via the
+// Wiki API — they return `missing: true`). Rather than assuming a fixed
+// list, every linked category is fetched and only pages that actually exist
+// are given full detail; the other categories are kept as lightweight
+// entries using only the summary text the "Monsters" page itself provides.
+// ---------------------------------------------------------------------------
+
+const MONSTER_CATEGORY_REGEX = /'''\[\[([^|\]]+)(?:\|([^\]]+))?\]\]'''\s*-\s*([^\n]+)/g
+
+function parseMonsterCategories(wikitext) {
+  const categories = []
+  let m
+  const re = new RegExp(MONSTER_CATEGORY_REGEX)
+  while ((m = re.exec(wikitext)) !== null) {
+    categories.push({
+      linkedTitle: m[1].trim(),
+      label: (m[2] || m[1]).trim(),
+      summary: stripWikiMarkup(m[3].trim()),
+    })
+  }
+  return categories
+}
+
+/**
+ * Parse a monster's own Wiki page (e.g. "Destroyer") into whatever
+ * structured sections it actually has. Only "Attacks" and "Strategy" exist
+ * today; other pages may have different/no sections, so every field here
+ * is optional and left absent rather than guessed.
+ */
+function parseMonsterPage(wikitext) {
+  const firstHeadingIdx = wikitext.search(/\n==\s*[^=]/)
+  const introRaw = firstHeadingIdx === -1 ? wikitext : wikitext.slice(0, firstHeadingIdx)
+
+  // The intro typically opens with one or two [[File:...]] image links
+  // (a large framed preview + a small inline icon) before any prose.
+  const fileLinkMatches = [...introRaw.matchAll(/\[\[File:([^\]]+)\]\]/g)].map((m) => m[1])
+  let imageFile
+  let iconFile
+  for (const raw of fileLinkMatches) {
+    const [fileName, ...opts] = raw.split('|').map((s) => s.trim())
+    if (opts.includes('frame') && !imageFile) imageFile = fileName
+    if (!iconFile) iconFile = fileName
+  }
+
+  const introWithoutFiles = introRaw.replace(/\[\[File:[^\]]*\]\]/g, '')
+  const description = stripWikiMarkup(introWithoutFiles) || undefined
+
+  const attacksSection = extractWikiSection(wikitext, 'Attacks')
+  const attacksIntro = attacksSection ? stripWikiMarkup(attacksSection.split('<div')[0]) : undefined
+  const attacks = attacksSection ? parseAkCards(attacksSection) : []
+
+  const strategySection = extractWikiSection(wikitext, 'Strategy')
+  const strategy = strategySection ? parseBulletList(strategySection) : []
+
+  return {
+    description,
+    imageFile: imageFile || iconFile,
+    iconFile: imageFile && iconFile !== imageFile ? iconFile : undefined,
+    attacksIntro,
+    attacks,
+    strategy,
+  }
+}
+
+function buildMonster({ category, detail, imageUrls }) {
+  const monster = {
+    id: category.linkedTitle,
+    name: toTitleCase(category.label),
+    summary: category.summary,
+    hasWikiPage: !!detail,
+    wikiUrl: `${WIKI_BASE_URL}/wiki/${encodeURIComponent(category.linkedTitle.replace(/ /g, '_'))}`,
+  }
+
+  if (detail) {
+    if (detail.description) monster.description = detail.description
+
+    const image = detail.imageFile ? imageUrls[detail.imageFile] : undefined
+    if (image) monster.image = image
+    const icon = detail.iconFile ? imageUrls[detail.iconFile] : undefined
+    if (icon) monster.icon = icon
+
+    if (detail.attacksIntro) monster.attacksIntro = detail.attacksIntro
+    if (detail.attacks?.length) {
+      monster.attacks = detail.attacks.map((attack) => ({
+        name: attack.name,
+        image: attack.image ? imageUrls[attack.image] : undefined,
+        description: attack.description,
+        stats: attack.stats,
+      }))
+    }
+    if (detail.strategy?.length) monster.strategy = detail.strategy
+  }
+
+  return monster
+}
+
+async function fetchMonstersFromWiki() {
+  const overviewWikitext = (await getPagesWikitext(['Monsters'])).Monsters
+  if (!overviewWikitext) return []
+
+  const categories = parseMonsterCategories(overviewWikitext)
+  if (!categories.length) return []
+
+  const detailWikitext = await getPagesWikitext(categories.map((c) => c.linkedTitle))
+
+  const parsed = categories.map((category) => {
+    const raw = detailWikitext[category.linkedTitle]
+    return { category, detail: raw ? parseMonsterPage(raw) : null }
+  })
+
+  const imageFileNames = new Set()
+  parsed.forEach(({ detail }) => {
+    if (!detail) return
+    if (detail.imageFile) imageFileNames.add(detail.imageFile)
+    if (detail.iconFile) imageFileNames.add(detail.iconFile)
+    detail.attacks?.forEach((attack) => attack.image && imageFileNames.add(attack.image))
+  })
+  const imageUrls = await getImageUrls(Array.from(imageFileNames))
+
+  return parsed.map(({ category, detail }) => buildMonster({ category, detail, imageUrls }))
+}
+
+/**
+ * Get the full list of Monster entries from the Arkheron Wiki.
+ * @param {{ forceRefresh?: boolean }} [options]
+ * @returns {Promise<object[]>}
+ */
+export async function getMonsters(options = {}) {
+  const { forceRefresh = false } = options
+  const isCacheValid = monstersCache && Date.now() - monstersCache.fetchedAt < CACHE_TTL_MS
+
+  if (isCacheValid && !forceRefresh) {
+    return monstersCache.data
+  }
+
+  if (monstersPromise && !forceRefresh) {
+    return monstersPromise
+  }
+
+  monstersPromise = fetchMonstersFromWiki()
+    .then((data) => {
+      monstersCache = { data, fetchedAt: Date.now() }
+      monstersPromise = null
+      return data
+    })
+    .catch((err) => {
+      monstersPromise = null
+      throw err
+    })
+
+  return monstersPromise
+}
+
+/**
+ * Get a single Monster by its Tower id (its Wiki page title, e.g. "Destroyer").
+ * @param {string} id
+ * @returns {Promise<object | undefined>}
+ */
+export async function getMonster(id) {
+  const monsters = await getMonsters()
+  return monsters.find((monster) => monster.id === id)
+}
+
+// ---------------------------------------------------------------------------
+// Map model assembly
+//
+// The Wiki does not have per-floor pages, a Maps Category, or a Cargo
+// table — it explicitly says an interactive map "is in the works" and only
+// documents map information as a single reference page ("Map Information"):
+// a legend table of icons (grouped under Beacons / Enemies / Objectives /
+// Points of Interest) plus four floor preview images. Those are exposed
+// here as two kinds of Map entities rather than invented per-floor data:
+//   - "floor"   entities: one per floor preview image (Floor 1..4)
+//   - "feature" entities: one per legend row (Beacon Available, Portal, ...)
+// The Wiki does not state which features belong to which floor, so no such
+// relationship is fabricated here.
+// ---------------------------------------------------------------------------
+
+function extractMapNotice(wikitext) {
+  const idx = wikitext.search(/\n==/)
+  const intro = idx === -1 ? wikitext : wikitext.slice(0, idx)
+  return stripWikiMarkup(intro) || undefined
+}
+
+function parseMapFloors(wikitext) {
+  const section = extractWikiSection(wikitext, 'Map Floors')
+  if (!section) return []
+  const matches = [...section.matchAll(/\[\[File:([^|\]]+)\|frame\|([^\]]+)\]\]/g)]
+  return matches.map((m) => ({ imageFile: m[1].trim(), name: m[2].trim() }))
+}
+
+function parseMapFeatures(wikitext) {
+  const tableMatch = wikitext.match(/\{\|[\s\S]*?\n\|\}/)
+  if (!tableMatch) return []
+  const rows = tableMatch[0].split(/\n\|-/).slice(1)
+
+  const features = []
+  let currentCategory
+  const usedIndexes = new Set()
+
+  for (let i = 0; i < rows.length; i++) {
+    if (usedIndexes.has(i)) continue
+    const row = rows[i]
+
+    // Category header row, e.g. `! colspan="3"|Beacons`.
+    const categoryMatch = row.match(/!\s*colspan="3"\|([^\n]+)/)
+    if (categoryMatch) {
+      currentCategory = categoryMatch[1].trim()
+      continue
+    }
+
+    // A feature with separate locked/unlocked icons (Portal, Gateway,
+    // Bridge, Key) spans two consecutive row chunks: the first names the
+    // feature (via a rowspan cell), the second holds its two icon files.
+    const pairedMatch = row.match(
+      /!\s*(?:Closed|Key)\s*\n!\s*(?:Open|Key Room)\s*\n\|\s*rowspan="2"\|'''([^']+)'''\s*(?:<br\s*\/?>)?\s*\n?([\s\S]*)/,
+    )
+    if (pairedMatch) {
+      const name = pairedMatch[1].trim()
+      const description = stripWikiMarkup(pairedMatch[2].replace(/\|\}\s*$/, '')) || undefined
+      const nextRow = rows[i + 1] || ''
+      const imageFiles = [...nextRow.matchAll(/\[\[File:([^|\]]+)/g)].map((m) => m[1].trim())
+      usedIndexes.add(i + 1)
+      features.push({ category: currentCategory, name, description, imageFiles })
+      continue
+    }
+
+    // A simple single-icon feature row, e.g. Beacon Available / Destroyer / Shrine.
+    const singleMatch = row.match(/!\s*colspan="2"\|\[\[File:([^|\]]+)[^\n]*\n\|\s*([\s\S]+)/)
+    if (singleMatch) {
+      const fileName = singleMatch[1].trim()
+      const cellText = singleMatch[2].replace(/\|\}\s*$/, '').trim()
+      // If the cell's own text bolds a name first (e.g. "'''Shrine'''<br>..."),
+      // that IS the Wiki's own display label for this row — prefer it.
+      // Otherwise fall back to the icon's file name (e.g.
+      // "Beacon Available.png" -> "Beacon Available"), since the Wiki
+      // doesn't give these rows any other name.
+      const boldFirst = cellText.match(/^'''([^']+)'''\s*(?:<br\s*\/?>)?\s*\n?([\s\S]*)$/)
+      const name = boldFirst ? boldFirst[1].trim() : fileName.replace(/\.[a-z0-9]+$/i, '')
+      const description = stripWikiMarkup(boldFirst ? boldFirst[2] : cellText) || undefined
+      features.push({ category: currentCategory, name, description, imageFiles: [fileName] })
+    }
+  }
+
+  return features
+}
+
+function slugifyMapName(name) {
+  return name.trim().toLowerCase().replace(/\s+/g, '-')
+}
+
+async function fetchMapsFromWiki() {
+  const wikitext = (await getPagesWikitext(['Map Information']))['Map Information']
+  if (!wikitext) return []
+
+  const notice = extractMapNotice(wikitext)
+  const floors = parseMapFloors(wikitext)
+  const features = parseMapFeatures(wikitext)
+
+  const imageFileNames = new Set()
+  floors.forEach((f) => f.imageFile && imageFileNames.add(f.imageFile))
+  features.forEach((f) => f.imageFiles.forEach((name) => imageFileNames.add(name)))
+  const imageUrls = await getImageUrls(Array.from(imageFileNames))
+
+  const wikiUrl = `${WIKI_BASE_URL}/wiki/Map_Information`
+
+  const floorEntities = floors.map((floor) => ({
+    id: slugifyMapName(floor.name),
+    entityType: 'floor',
+    category: 'Floors',
+    name: floor.name,
+    notice,
+    image: imageUrls[floor.imageFile],
+    wikiUrl,
+  }))
+
+  const featureEntities = features.map((feature) => ({
+    id: slugifyMapName(`${feature.category}-${feature.name}`),
+    entityType: 'feature',
+    category: feature.category,
+    name: feature.name,
+    description: feature.description,
+    image: imageUrls[feature.imageFiles[0]],
+    images: feature.imageFiles.map((name) => imageUrls[name]).filter(Boolean),
+    wikiUrl,
+  }))
+
+  return [...floorEntities, ...featureEntities]
+}
+
+/**
+ * Get the full list of Map entities (floor previews + map-icon legend
+ * entries) from the Arkheron Wiki's "Map Information" page.
+ * @param {{ forceRefresh?: boolean }} [options]
+ * @returns {Promise<object[]>}
+ */
+export async function getMaps(options = {}) {
+  const { forceRefresh = false } = options
+  const isCacheValid = mapsCache && Date.now() - mapsCache.fetchedAt < CACHE_TTL_MS
+
+  if (isCacheValid && !forceRefresh) {
+    return mapsCache.data
+  }
+
+  if (mapsPromise && !forceRefresh) {
+    return mapsPromise
+  }
+
+  mapsPromise = fetchMapsFromWiki()
+    .then((data) => {
+      mapsCache = { data, fetchedAt: Date.now() }
+      mapsPromise = null
+      return data
+    })
+    .catch((err) => {
+      mapsPromise = null
+      throw err
+    })
+
+  return mapsPromise
+}
+
+/**
+ * Get a single Map entity by its Tower id.
+ * @param {string} id
+ * @returns {Promise<object | undefined>}
+ */
+export async function getMap(id) {
+  const maps = await getMaps()
+  return maps.find((map) => map.id === id)
+}
+
+// ---------------------------------------------------------------------------
 // Effect glossary (tooltip definitions)
 // ---------------------------------------------------------------------------
 
@@ -710,6 +1107,10 @@ const ArkheronDataService = {
   getEternal,
   getItems,
   getItem,
+  getMonsters,
+  getMonster,
+  getMaps,
+  getMap,
   getEffectGlossary,
   getEffectDefinition,
 }
