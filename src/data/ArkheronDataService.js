@@ -1025,7 +1025,17 @@ export async function getMaps(options = {}) {
     return mapsPromise
   }
 
+  // Create the promise using a function expression to avoid initialization issues
   mapsPromise = fetchMapsFromWiki()
+    .then((data) => {
+      mapsCache = { data, fetchedAt: Date.now() }
+      mapsPromise = null
+      return data
+    })
+    .catch((err) => {
+      mapsPromise = null
+      throw err
+    })
     .then((data) => {
       mapsCache = { data, fetchedAt: Date.now() }
       mapsPromise = null
