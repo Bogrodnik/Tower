@@ -1,0 +1,234 @@
+.build-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.build-row:hover,
+.build-row:focus-visible {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 28px rgba(46, 201, 192, 0.14);
+  outline: none;
+}
+
+.build-row-featured {
+  border-color: var(--accent-gold);
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0.07), var(--bg-panel) 60%);
+  padding-top: 34px;
+}
+
+.build-row-featured-tag {
+  position: absolute;
+  top: 14px;
+  left: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--accent-gold);
+}
+
+.build-row-featured {
+  position: relative;
+}
+
+.build-row-main {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.build-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 220px;
+  min-width: 160px;
+}
+
+.build-row-playstyle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.build-row-name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: var(--text-primary);
+}
+
+.build-row-featured .build-row-name {
+  font-size: 22px;
+}
+
+.build-row-author {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.build-row-tags {
+  margin-top: 2px;
+}
+
+.build-row-loadout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.build-row-loadout-core {
+  display: flex;
+  gap: 6px;
+}
+
+.build-row-slot {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-color-strong);
+  border-radius: var(--radius-sm);
+  flex: 0 0 auto;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.build-row-slot:hover {
+  border-color: var(--accent-blue);
+  transform: translateY(-2px);
+}
+
+.build-row-slot-anchor,
+.build-row-slot-consumable {
+  border-color: var(--accent-gold);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.build-row-slot img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
+
+.build-row-slot-fallback {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.build-row-slot-empty {
+  border-style: dashed;
+  opacity: 0.5;
+  cursor: default;
+}
+
+.build-row-slot-badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 16px;
+  height: 16px;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+  filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
+}
+
+.build-row-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.build-row-rating-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+.build-row-stars {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.star-filled {
+  color: var(--accent-gold);
+}
+
+.star-empty {
+  color: var(--border-color-strong);
+}
+
+.build-row-rating-count {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.build-row-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-color);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.build-row-composition {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--accent-blue-light);
+  flex: 1 1 auto;
+}
+
+.build-row-eternal-link {
+  color: var(--accent-blue-light);
+  text-decoration: none;
+}
+
+.build-row-eternal-link:hover {
+  text-decoration: underline;
+}
+
+.build-row-composition-sep,
+.build-row-composition-echo {
+  color: var(--text-muted);
+}
+
+.build-row-meta-item {
+  white-space: nowrap;
+}
+
+@media (max-width: 720px) {
+  .build-row-main {
+    flex-wrap: wrap;
+  }
+
+  .build-row-rating {
+    margin-left: 0;
+  }
+
+  .build-row-loadout {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
+}

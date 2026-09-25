@@ -1,0 +1,199 @@
+.item-tooltip-trigger {
+  display: contents;
+}
+
+.item-tooltip {
+  position: fixed;
+  z-index: 500;
+  width: 260px;
+  max-width: calc(100vw - 24px);
+  pointer-events: auto;
+}
+
+.item-tooltip-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-panel-solid);
+  border: 1px solid var(--border-color-strong);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(46, 201, 192, 0.08),
+    0 0 24px var(--accent-blue-glow);
+}
+
+.item-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-tooltip-art {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.item-tooltip-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.item-tooltip-art-placeholder {
+  width: 100%;
+  height: 100%;
+}
+
+.item-tooltip-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.item-tooltip-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+}
+
+.item-tooltip-meta {
+  font-size: 0.68rem;
+  color: var(--accent-blue-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.item-tooltip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.item-tooltip-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-color);
+}
+
+.item-tooltip-stat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.72rem;
+}
+
+.item-tooltip-stat-label {
+  color: var(--accent-gold);
+}
+
+.item-tooltip-stat-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.item-tooltip-description {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.item-tooltip-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-color);
+}
+
+.item-tooltip-section-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-blue-light);
+}
+
+.item-tooltip-upgrade-row {
+  display: flex;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.item-tooltip-upgrade-level {
+  flex-shrink: 0;
+  color: var(--accent-gold);
+  font-weight: 600;
+}
+
+.item-tooltip-bonus {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-color);
+}
+
+.item-tooltip-bonus-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.item-tooltip-bonus-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.item-tooltip-bonus-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent-red);
+}
+
+.item-tooltip-bonus-text {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.item-tooltip-flavor {
+  margin: 0;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.7rem;
+  font-style: italic;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (hover: none), (pointer: coarse) {
+  /* Hover cards are a desktop affordance only — never rendered on touch
+     devices, so there's nothing to hide here beyond not opening at all. */
+  .item-tooltip {
+    display: none;
+  }
+}

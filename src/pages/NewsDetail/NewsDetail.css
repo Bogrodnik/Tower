@@ -1,0 +1,145 @@
+.news-detail-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+.news-article {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.news-article-hero {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.news-article-hero img {
+  width: 100%;
+  display: block;
+}
+
+.news-article-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.news-article-category {
+  padding: 3px 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--accent-blue-light);
+  background: rgba(46, 201, 192, 0.08);
+  border: 1px solid var(--border-color-strong);
+  border-radius: 2px;
+}
+
+.news-article-date {
+  color: var(--text-muted);
+}
+
+.news-article-title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.news-article-video {
+  margin: 4px 0;
+}
+
+.news-article-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.news-article-paragraph {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.news-article-heading {
+  margin: 10px 0 -4px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--text-primary);
+}
+
+.news-article-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.news-related-entities,
+.news-source-panel {
+  padding: 20px 24px;
+}
+
+.news-related-entities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.news-related-entity-pill {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.news-related-entity-pill:hover {
+  border-color: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.news-source-text {
+  margin: 0 0 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.news-related-articles {
+  margin-top: 8px;
+}
+
+.news-related-grid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 700px) {
+  .news-detail-page {
+    padding: 32px 16px 64px;
+  }
+
+  .news-article-title {
+    font-size: 24px;
+  }
+
+  .news-related-entities,
+  .news-source-panel {
+    padding: 16px 18px;
+  }
+
+  .news-related-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,194 @@
+.build-detail-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+.build-detail-page .panel {
+  padding: 24px 28px;
+}
+
+.build-header {
+  box-shadow: 0 0 40px rgba(46, 201, 192, 0.08);
+}
+
+.build-header-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.build-draft-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent-red);
+  border: 1px solid rgba(230, 66, 90, 0.4);
+  background: rgba(230, 66, 90, 0.08);
+  border-radius: 2px;
+  padding: 2px 7px;
+}
+
+.build-eternal-link {
+  color: var(--accent-blue-light);
+  text-decoration: none;
+}
+
+.build-eternal-link:hover {
+  text-decoration: underline;
+}
+
+.build-author {
+  display: block;
+  margin-top: -8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.build-tag-row {
+  margin-bottom: 16px;
+}
+
+.build-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-color);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.build-meta-item {
+  font-weight: 600;
+}
+
+.build-share-btn {
+  margin-left: auto;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.build-share-btn:hover {
+  border-color: var(--accent-blue);
+}
+
+.build-edit-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.build-edit-link:hover {
+  color: var(--accent-blue-light);
+}
+
+/* ---- Loadout (Anchor / Crown / Amulet / Weapon / Weapon / Consumable) ---- */
+
+.build-loadout-grid {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+@media (max-width: 1300px) {
+  .build-loadout-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .build-loadout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.build-section {
+  margin-top: 0;
+}
+
+/* Synergy / set bonus styling now lives in BuildSynergyPanel.css since it is
+   shared between the Build Detail page and the live Build Create preview. */
+
+/* ---- Description / Notes / Playstyle ---- */
+
+.build-detail-field {
+  margin-bottom: 16px;
+}
+
+.build-detail-field:last-child {
+  margin-bottom: 0;
+}
+
+.build-detail-field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.build-detail-field-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+/* ---- Metrics ---- */
+
+.build-metrics-note {
+  margin: -8px 0 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.build-metrics-row {
+  display: flex;
+  gap: 24px;
+}
+
+.build-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.build-metric-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.build-metric-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 640px) {
+  .build-detail-page {
+    padding: 32px 16px 64px;
+  }
+
+  .build-detail-page .panel {
+    padding: 18px 18px;
+  }
+
+  .build-share-btn {
+    margin-left: 0;
+  }
+}

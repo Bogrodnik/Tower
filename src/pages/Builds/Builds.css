@@ -1,0 +1,114 @@
+.builds-page {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 64px 24px 96px;
+}
+
+.builds-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+  margin-bottom: 8px;
+  padding: 12px 14px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+.builds-search {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+.builds-create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  background: rgba(46, 201, 192, 0.14);
+  border: 1px solid var(--accent-blue);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  box-shadow: 0 0 18px rgba(46, 201, 192, 0.16);
+  white-space: nowrap;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.builds-create-btn:hover {
+  background: rgba(46, 201, 192, 0.24);
+  box-shadow: 0 0 26px rgba(46, 201, 192, 0.28);
+}
+
+.builds-sort-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.builds-sort-tab {
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.builds-sort-tab.active {
+  color: var(--accent-blue-light);
+  border-color: var(--accent-blue);
+  background: rgba(46, 201, 192, 0.12);
+}
+
+.builds-section-eyebrow {
+  margin-bottom: 14px;
+}
+
+.builds-result-count {
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.builds-row-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.builds-filters-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  border-radius: 999px;
+  background: var(--accent-blue);
+  color: var(--text-primary);
+}
+
+@media (max-width: 700px) {
+  .builds-page {
+    padding: 40px 16px 64px;
+  }
+
+  .builds-sort-tabs {
+    margin-left: 0;
+  }
+}

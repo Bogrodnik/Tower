@@ -1,0 +1,165 @@
+/*
+ * Tower design tokens — single source of truth for color/spacing/shape.
+ * Identity: deep navy background, teal for interactive/database elements,
+ * gold for stats/important metadata, red used sparingly for alerts.
+ * Every component should reference these variables rather than one-off
+ * colors, so the whole site reads as one consistent product.
+ */
+:root {
+  --bg-base: #05070d;
+  --bg-panel: rgba(18, 24, 38, 0.55);
+  --bg-panel-solid: #0b0e17;
+  --bg-panel-elevated: rgba(24, 32, 48, 0.7);
+  --border-color: rgba(70, 150, 150, 0.18);
+  --border-color-strong: rgba(60, 190, 180, 0.35);
+
+  /* Teal — links, active nav, buttons, search focus, selected filters */
+  --accent-blue: #2ec9c0;
+  --accent-blue-light: #7de0d8;
+  --accent-blue-glow: rgba(46, 201, 192, 0.35);
+  /* Red — sparing use for alerts/danger accents */
+  --accent-red: #e6425a;
+  /* Gold — stats, item/Eternal metadata, rarity, key game information */
+  --accent-gold: #d4af5a;
+  --accent-gold-muted: rgba(212, 175, 90, 0.55);
+
+  --text-primary: #eef2fb;
+  --text-secondary: #a9b4c9;
+  --text-muted: #6c7690;
+
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  --shadow-glow-sm: 0 0 10px var(--accent-blue-glow);
+  --shadow-glow-md: 0 0 22px var(--accent-blue-glow);
+  --shadow-panel: 0 8px 24px rgba(0, 0, 0, 0.35);
+
+  --transition-fast: 0.15s ease;
+  --transition-base: 0.2s ease;
+
+  /* Site-wide page width — a dense, Wowhead-style fixed container rather
+     than a full-bleed layout. Header/footer/page bodies all share this. */
+  --site-width: 1400px;
+
+  /* Semantic aliases (per the Tower design-system naming convention).
+     These point at the tokens above so the whole app can be themed from
+     one place without renaming every var(--accent-blue) reference. */
+  --tower-bg: var(--bg-base);
+  --tower-bg-secondary: var(--bg-panel-solid);
+  --tower-panel: var(--bg-panel);
+  --tower-panel-hover: var(--bg-panel-elevated);
+  --tower-border: var(--border-color);
+  --tower-teal: var(--accent-blue);
+  --tower-teal-bright: var(--accent-blue-light);
+  --tower-gold: var(--accent-gold);
+  --tower-gold-muted: var(--accent-gold-muted);
+  --tower-text: var(--text-primary);
+  --tower-text-muted: var(--text-muted);
+  --tower-danger: var(--accent-red);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(46, 201, 192, 0.12), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(46, 201, 192, 0.08), transparent 55%),
+    var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-main {
+  flex: 1;
+  width: 100%;
+}
+
+.container {
+  max-width: var(--site-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Shared placeholder page styling */
+.page {
+  max-width: var(--site-width);
+  margin: 0 auto;
+  padding: 64px 24px 96px;
+}
+
+.page-eyebrow {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--accent-blue-light);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.page-title {
+  margin: 8px 0 12px;
+  font-size: 36px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.page-description {
+  color: var(--text-secondary);
+  font-size: 15px;
+  max-width: 560px;
+}
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  backdrop-filter: blur(6px);
+}
+
+.accent-bar {
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-blue), var(--accent-red));
+  border-radius: 2px;
+  margin-top: 18px;
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 40px 16px 64px;
+  }
+
+  .page-title {
+    font-size: 28px;
+  }
+}
